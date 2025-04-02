@@ -1,6 +1,7 @@
-table, th, td {
-    border: 1px solid black;
+td {
+    border-bottom: 1px solid black;
   }
+
 
 .tableRow {
     border-bottom: 2px solid black;
