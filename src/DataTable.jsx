@@ -16,6 +16,14 @@ export default function DataTable({
   const [message, setMessage] = useState("Data Table");
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [totalPages, setTotalPages] = useState(calculateTotalPages);
+  const [data, setData] = useState(users);
+  const [sortOrder, setSortOrder] = useState("asc");
+  const headerInformation = [
+    { label: "ID", key: "id", type: "number" },
+    { label: "Name", key: "name", type: "string" },
+    { label: "Age", key: "age", type: "number" },
+    { label: "Occupation", key: "occupation", type: "string" },
+  ];
 
   const startPoint = (currentPage - 1) * itemsPerPage;
   const endPoint = Number(startPoint) + Number(itemsPerPage);
@@ -39,24 +47,63 @@ export default function DataTable({
     console.log("endPoint", endPoint);
   });
 
+  const sortByHeader = (e, headerKey) => {
+    console.log("headerKey ", headerKey);
+    // console.log(
+    //   "type of",
+    //   headerInformation.find(
+    //     (header) => header.key === headerKey && header.type
+    //   )
+    // );
+    const typeOfHeader = headerInformation.find(
+      (header) => header.key === headerKey && header.type
+    );
+    console.log("typeOfHeader.type", typeOfHeader.type);
+
+    setData((prev) => {
+      if (typeOfHeader.type == "number") {
+        return prev.sort((eachUserA, eachUserB) => {
+          console.log("eachUserA", eachUserA);
+          console.log("eachUserA[headerKey]", eachUserA[headerKey]);
+          // // return positive value if a is less that b (asc)
+          // if (eachUserA[headerKey] < eachUserB[headerKey]) return 1;
+          // // return negative value if a is greater than b
+          // if (eachUserA[headerKey] > eachUserB[headerKey]) return -1;
+          // // a must be equal to b
+          // return 0;
+          return sortOrder === "asc"
+            ? eachUserA[headerKey] - eachUserB[headerKey]
+            : eachUserB[headerKey] - eachUserA[headerKey];
+        });
+      }
+
+      return prev.sort((a, b) =>
+        sortOrder === "asc"
+          ? a[headerKey].localeCompare(b[headerKey])
+          : b[headerKey].localeCompare(a[headerKey])
+      );
+    });
+    setSortOrder("desc");
+  };
+
   return (
     <div>
       <h1>{message}</h1>
       <table>
         <thead>
           <tr>
-            {[
-              { label: "ID", key: "id" },
-              { label: "Name", key: "name" },
-              { label: "Age", key: "age" },
-              { label: "Occupation", key: "occupation" },
-            ].map(({ label, key }) => (
-              <th key={key}>{label}</th>
+            {headerInformation.map(({ label, key }) => (
+              <th
+                key={key}
+                onClick={(e) => sortByHeader(e, label.toLocaleLowerCase())}
+              >
+                {label}
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {users
+          {data
             .slice(startPoint, endPoint)
             .map(({ id, name, age, occupation }) => (
               <tr key={id} className="tableRow">
